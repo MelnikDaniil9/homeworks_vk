@@ -12,6 +12,8 @@ class TestCustomList(unittest.TestCase):
         self.assertEqual([1, 2] + CustomList([1]), CustomList([2, 2]))
         self.assertEqual([1, 2] + CustomList([1, 2, 3]), CustomList([2, 4, 3]))
         self.assertEqual(CustomList([1, 2]) + [0, -2, 1], CustomList([1, 0, 1]))
+        self.assertEqual(list(CustomList([1, 2]) + [0, -2, 1]), [1, 0, 1])
+        self.assertEqual(list(CustomList([-3, 2]) + CustomList([1])), [-2, 2])
 
     def test_sub_rsub(self):
         self.assertEqual(CustomList([1, 2]) - CustomList([1]), CustomList([0, 2]))
@@ -22,6 +24,8 @@ class TestCustomList(unittest.TestCase):
         self.assertEqual([1, 2] - CustomList([1]), CustomList([0, 2]))
         self.assertEqual([1, 2] - CustomList([1, 2, 3]), CustomList([0, 0, -3]))
         self.assertEqual(CustomList([1, 2]) - [0, -2, 1], CustomList([1, 4, -1]))
+        self.assertEqual(list(CustomList([1, 2]) - [0, -2, 1]), [1, 4, -1])
+        self.assertEqual(list(CustomList([-3, 2]) - CustomList([1])), [-4, 2])
 
     def test_eq_ne(self):
         self.assertTrue(CustomList([1, 2, 3]) == CustomList([1, 2, 3]))
