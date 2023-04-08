@@ -17,6 +17,9 @@ class TestParserJson(unittest.TestCase):
             ),
             None,
         )
+        self.assertEqual(
+            self.keyword_callback_mock.mock_calls, [mock.call("key1", "word2")]
+        )
         self.assertEqual(self.keyword_callback_mock.call_count, 1)
 
     def test_calls_parse_json(self):
@@ -36,41 +39,70 @@ class TestParserJson(unittest.TestCase):
                 },
                 "key13": "value13"
             }"""
-        params = [
-            (
+        # Если keyword_callback = None
+        self.assertEqual(
+            parse_json(
                 params_json,
+                None,
                 ["key13", "key33", "key56", "key55"],
                 ["value13", "value33", "value12", "value0"],
             ),
-            (
+            None,
+        )
+        self.keyword_callback_mock.assert_not_called()
+        self.assertEqual(self.keyword_callback_mock.call_count, 0)
+        # Если json_str = None
+        self.assertEqual(
+            parse_json(
+                None,
+                self.keyword_callback_mock,
+                ["key13", "key33", "key56", "key55"],
+                ["value13", "value33", "value12", "value0"],
+            ),
+            None,
+        )
+        self.keyword_callback_mock.assert_not_called()
+        self.assertEqual(self.keyword_callback_mock.call_count, 0)
+        # Если keywords = None
+        self.assertEqual(
+            parse_json(
                 params_json,
-                [],
-                ["value13", "value33", "value12"],
+                self.keyword_callback_mock,
+                ["key13", "key33", "key56", "key55"],
+                None,
             ),
-            (
+            None,
+        )
+        self.keyword_callback_mock.assert_not_called()
+        self.assertEqual(self.keyword_callback_mock.call_count, 0)
+        # Если required_fields = None
+        self.assertEqual(
+            parse_json(
                 params_json,
-                ["key13", "key33"],
-                [],
+                self.keyword_callback_mock,
+                None,
+                ["value13", "value33", "value12", "value0"],
             ),
-            (
-                "",
-                ["key13", "key33"],
-                ["value13", "value33", "value12"],
+            None,
+        )
+        self.keyword_callback_mock.assert_not_called()
+        self.assertEqual(self.keyword_callback_mock.call_count, 0)
+        # Тест с несколькими найденными required_field и keyword
+        self.assertEqual(
+            parse_json(
+                params_json,
+                self.keyword_callback_mock,
+                ["key13", "key33", "key56", "key55"],
+                ["value13", "value33", "value12", "value0"],
             ),
-        ]
-        for json_str, required_fields, keywords in params:
-            with self.subTest():
-                self.assertEqual(
-                    parse_json(
-                        json_str, self.keyword_callback_mock, required_fields, keywords
-                    ),
-                    None,
-                )
+            None,
+        )
         mock_calls = [
-            mock.call("value13"),
-            mock.call("value33"),
-            mock.call("value12"),
-            mock.call("value0"),
+            mock.call("key13", "value13"),
+            mock.call("key33", "value33"),
+            mock.call("key33", "value12"),
+            mock.call("key56", "value0"),
         ]
+        # Проверкa аргументов, с которыми были вызваны колбеки
         self.assertEqual(self.keyword_callback_mock.mock_calls, mock_calls)
         self.assertEqual(self.keyword_callback_mock.call_count, 4)

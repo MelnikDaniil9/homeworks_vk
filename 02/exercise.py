@@ -1,11 +1,9 @@
 import json
 
 
-def parse_json(
-    json_str: str, keyword_callback, required_fields=None, keywords=None
-) -> None:
-    if not (json_str and required_fields and keywords):
-        return None
+def parse_json(json_str, keyword_callback, required_fields=None, keywords=None) -> None:
+    if not (json_str and required_fields and keywords and keyword_callback):
+        return
     json_doc = json.loads(json_str)
     for key in json_doc:
         if isinstance(json_doc[key], dict):
@@ -19,4 +17,4 @@ def parse_json(
         if key in json_doc:
             for word in keywords:
                 if word in json_doc[key].split():
-                    keyword_callback(word)
+                    keyword_callback(key, word)
