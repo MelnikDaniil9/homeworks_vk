@@ -17,6 +17,7 @@ class TestCustomMeta(unittest.TestCase):
                 return "Custom_by_metaclass"
 
         self.instance_class = CustomClass()
+        self.obj_class = CustomClass
 
     def test_class_attr(self):
         self.instance_class.dynamic = "added dynamic"
@@ -30,6 +31,11 @@ class TestCustomMeta(unittest.TestCase):
             self.instance_class.line()
         with self.assertRaises(AttributeError):
             self.instance_class.dynamic
+        self.assertEqual(self.obj_class.custom_x, 50)
+        with self.assertRaises(AttributeError):
+            self.obj_class.x
+        self.instance_class.__magick__ = "magick"
+        self.assertEqual(self.instance_class.__magick__, "magick")
 
     def test_init_attr(self):
         self.assertEqual(self.instance_class.custom_val, 99)

@@ -22,6 +22,7 @@ class TestDescriptors(unittest.TestCase):
         self.assertEqual(data_instance.integer, 42)
         with self.assertRaises(TypeError):
             data_instance.integer = "42"
+        self.assertEqual(data_instance.integer, 42)
         data_instance.integer = 300
         self.assertEqual(data_instance.integer, 300)
         del data_instance.integer
@@ -34,6 +35,7 @@ class TestDescriptors(unittest.TestCase):
         self.assertEqual(data_instance.string, "test")
         with self.assertRaises(TypeError):
             data_instance.string = 42
+        self.assertEqual(data_instance.string, "test")
         data_instance.string = "300"
         self.assertEqual(data_instance.string, "300")
         del data_instance.string
@@ -48,6 +50,7 @@ class TestDescriptors(unittest.TestCase):
             data_instance.positive_int = "42"
         with self.assertRaises(TypeError):
             data_instance.positive_int = -0.5
+        self.assertEqual(data_instance.positive_int, 10)
         data_instance.positive_int = 300
         self.assertEqual(data_instance.positive_int, 300)
         del data_instance.positive_int
