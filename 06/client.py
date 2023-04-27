@@ -1,7 +1,13 @@
 import socket
 import threading
+import argparse
 
-COUNT_TH = 5
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-w', '--workers', type=int, help='Count th')
+parser.add_argument('urls_file', type=str, help='путь к файлу с URL-адресами')
+args = parser.parse_args()
+COUNT_TH = 10
 c_res = 0
 
 
@@ -12,11 +18,10 @@ def thread(data):
         threading.Thread(
             target=send_data,
             name=f"thread_{i}",
-            args=(
-                data[i * count_url: count_url * (i + 1)],
-            ),
+            args=(data[i * count_url: count_url * (i + 1)],),
         )
         for i in range(COUNT_TH)
+        if len(data[i * count_url: count_url * (i + 1)])
     ]
 
     for th in threads:
@@ -55,4 +60,4 @@ def run_client(file):
 
 
 if __name__ == "__main__":
-    thread(run_client("urls.txt"))
+    thread(run_client(args.urls_file))

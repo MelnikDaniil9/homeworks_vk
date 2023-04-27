@@ -3,15 +3,24 @@ from collections import Counter
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import threading
+import argparse
 
 
-COUNT_TH = 10
-COUNT_WORD = 3
+parser = argparse.ArgumentParser()
+parser.add_argument('-w', '--workers', type=int, help='Count workers')
+parser.add_argument('-k', '--words', type=int, help='Count words')
+args = parser.parse_args()
+COUNT_TH = args.workers
+COUNT_WORD = args.words
 sum_urls = 0
 
 
 def pars(url):
-    html_page = urlopen(url)
+    try:
+        html_page = urlopen(url)
+    except Exception:
+        print("Bad link")
+        return None
     html_content = html_page.read()
     soup = BeautifulSoup(html_content, "html.parser")
     text = soup.get_text()
@@ -23,7 +32,11 @@ def pars(url):
 def workers(urls, client_sock):
     global sum_urls
     for url in urls:
-        words_json = {f"{url}": f"{Counter(pars(url)).most_common(COUNT_WORD)}"}
+        pars_url = pars(url)
+        if pars_url is None:
+            words_json = {f"{url}": "Неверная ссылка"}
+        else:
+            words_json = {f"{url}": f"{Counter(pars_url).most_common(COUNT_WORD)}"}
         client_sock.sendall(str(words_json).encode())
         sum_urls += 1
         print(sum_urls)
@@ -37,7 +50,7 @@ def thread(data, client_sock):
             target=workers,
             name=f"thread_{i}",
             args=(
-                data[i * count_url: count_url * (i + 1)],
+                data[i * count_url : count_url * (i + 1)],
                 client_sock,
             ),
         )
@@ -58,7 +71,8 @@ def handle_client(client_sock, addr):
             data = client_sock.recv(1024)
             buffer += data
         except TimeoutError:
-            thread(buffer, client_sock)
+            if buffer:
+                thread(buffer, client_sock)
             break
     client_sock.close()
     print("client done:", addr)
