@@ -4,35 +4,41 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-w', '--workers', type=int, help='Count th')
-parser.add_argument('urls_file', type=str, help='путь к файлу с URL-адресами')
+parser.add_argument("-t", "--thread", type=int, default=5, help="Count th")
+parser.add_argument(
+    "urls_file",
+    type=str,
+    nargs="?",
+    default="urls.txt",
+    help="Path to urls",
+)
 args = parser.parse_args()
-COUNT_TH = 10
-c_res = 0
+COUNT_THREADS = args.thread
+COUNT_RES = 0
 
 
-def thread(data):
+def create_threads(data):
     data = data.strip().split(",")
-    count_url = (len(data) + COUNT_TH - 1) // COUNT_TH
+    count_url = (len(data) + COUNT_THREADS - 1) // COUNT_THREADS
     threads = [
         threading.Thread(
             target=send_data,
             name=f"thread_{i}",
             args=(data[i * count_url: count_url * (i + 1)],),
         )
-        for i in range(COUNT_TH)
+        for i in range(COUNT_THREADS)
         if len(data[i * count_url: count_url * (i + 1)])
     ]
 
-    for th in threads:
-        th.start()
+    for thread in threads:
+        thread.start()
 
-    for th in threads:
-        th.join()
+    for thread in threads:
+        thread.join()
 
 
 def send_data(data):
-    global c_res
+    global COUNT_RES
     host = "localhost"
     port = 1489
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,11 +51,11 @@ def send_data(data):
         else:
             try:
                 res = response.decode()
-                c_res += 1
+                COUNT_RES += 1
                 print(res)
             except Exception as e:
                 print(e)
-    print(c_res)
+    print(COUNT_RES)
     client_socket.close()
 
 
@@ -60,4 +66,4 @@ def run_client(file):
 
 
 if __name__ == "__main__":
-    thread(run_client(args.urls_file))
+    create_threads(run_client(args.urls_file))

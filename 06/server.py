@@ -1,18 +1,18 @@
 import socket
+import threading
+import argparse
 from collections import Counter
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-import threading
-import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-w', '--workers', type=int, help='Count workers')
-parser.add_argument('-k', '--words', type=int, help='Count words')
+parser.add_argument("-w", "--workers", type=int, default=5, help="Count workers")
+parser.add_argument("-k", "--words", type=int, default=3, help="Count words")
 args = parser.parse_args()
 COUNT_TH = args.workers
 COUNT_WORD = args.words
-sum_urls = 0
+SUM_URLS = 0
 
 
 def pars(url):
@@ -29,8 +29,8 @@ def pars(url):
     return words
 
 
-def workers(urls, client_sock):
-    global sum_urls
+def create_workers(urls, client_sock):
+    global SUM_URLS
     for url in urls:
         pars_url = pars(url)
         if pars_url is None:
@@ -38,30 +38,30 @@ def workers(urls, client_sock):
         else:
             words_json = {f"{url}": f"{Counter(pars_url).most_common(COUNT_WORD)}"}
         client_sock.sendall(str(words_json).encode())
-        sum_urls += 1
-        print(sum_urls)
+        SUM_URLS += 1
+        print(SUM_URLS)
 
 
-def thread(data, client_sock):
+def create_threads(data, client_sock):
     data = data.decode().strip().split(",")
     count_url = (len(data) + COUNT_TH - 1) // COUNT_TH
     threads = [
         threading.Thread(
-            target=workers,
+            target=create_workers,
             name=f"thread_{i}",
             args=(
-                data[i * count_url : count_url * (i + 1)],
+                data[i * count_url: count_url * (i + 1)],
                 client_sock,
             ),
         )
         for i in range(COUNT_TH)
     ]
 
-    for th in threads:
-        th.start()
+    for thread in threads:
+        thread.start()
 
-    for th in threads:
-        th.join()
+    for thread in threads:
+        thread.join()
 
 
 def handle_client(client_sock, addr):
@@ -72,7 +72,7 @@ def handle_client(client_sock, addr):
             buffer += data
         except TimeoutError:
             if buffer:
-                thread(buffer, client_sock)
+                create_threads(buffer, client_sock)
             break
     client_sock.close()
     print("client done:", addr)
