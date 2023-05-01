@@ -41,7 +41,7 @@ def create_threads(data, client_sock):
             target=create_workers,
             name=f"thread_{i}",
             args=(
-                data[i * count_url: count_url * (i + 1)],
+                data[i * count_url : count_url * (i + 1)],
                 client_sock,
             ),
         )

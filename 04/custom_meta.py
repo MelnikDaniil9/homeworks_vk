@@ -12,6 +12,7 @@ class CustomMeta(type):
                 super(self.__class__, self).__setattr__(f"custom_{key}", value)
             else:
                 super(self.__class__, self).__setattr__(key, value)
+
         new_attr["__setattr__"] = custom_setattr
 
         return super().__new__(mcs, name, bases, new_attr)

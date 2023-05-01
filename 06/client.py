@@ -24,10 +24,10 @@ def create_threads(data):
         threading.Thread(
             target=send_data,
             name=f"thread_{i}",
-            args=(data[i * count_url: count_url * (i + 1)],),
+            args=(data[i * count_url : count_url * (i + 1)],),
         )
         for i in range(COUNT_THREADS)
-        if len(data[i * count_url: count_url * (i + 1)])
+        if len(data[i * count_url : count_url * (i + 1)])
     ]
 
     for thread in threads:
