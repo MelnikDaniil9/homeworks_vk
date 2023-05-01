@@ -6,20 +6,11 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-w", "--workers", type=int, default=5, help="Count workers")
-parser.add_argument("-k", "--words", type=int, default=3, help="Count words")
-args = parser.parse_args()
-COUNT_TH = args.workers
-COUNT_WORD = args.words
-SUM_URLS = 0
-
-
 def pars(url):
     try:
         html_page = urlopen(url)
     except Exception:
-        print("Bad link")
+        print("SERVER LOG: Неверная ссылка")
         return None
     html_content = html_page.read()
     soup = BeautifulSoup(html_content, "html.parser")
@@ -39,7 +30,7 @@ def create_workers(urls, client_sock):
             words_json = {f"{url}": f"{Counter(pars_url).most_common(COUNT_WORD)}"}
         client_sock.sendall(str(words_json).encode())
         SUM_URLS += 1
-        print(SUM_URLS)
+        print(f"SERVER LOG: {SUM_URLS}")
 
 
 def create_threads(data, client_sock):
@@ -75,7 +66,7 @@ def handle_client(client_sock, addr):
                 create_threads(buffer, client_sock)
             break
     client_sock.close()
-    print("client done:", addr)
+    print("SERVER LOG: client done:", addr)
 
 
 def run_server():
@@ -87,9 +78,16 @@ def run_server():
     while True:
         client_sock, addr = server_sock.accept()
         client_sock.settimeout(2)
-        print("client connected", addr)
+        print("SERVER LOG: client connected", addr)
         handle_client(client_sock, addr)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", "--workers", type=int, default=5, help="Count workers")
+    parser.add_argument("-k", "--words", type=int, default=3, help="Count words")
+    args = parser.parse_args()
+    COUNT_TH = args.workers
+    COUNT_WORD = args.words
+    SUM_URLS = 0
     run_server()

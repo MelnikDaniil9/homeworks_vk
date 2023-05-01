@@ -52,10 +52,10 @@ def send_data(data):
             try:
                 res = response.decode()
                 COUNT_RES += 1
-                print(res)
+                print(f"CLIENT OUTPUT: {res}")
             except Exception as e:
                 print(e)
-    print(COUNT_RES)
+    print(f"CLIENT OUTPUT: {COUNT_RES}")
     client_socket.close()
 
 
