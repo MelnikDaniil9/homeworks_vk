@@ -3,19 +3,18 @@ import asyncio
 import aiohttp
 
 
-async def fetch_url(session, url, concurrency):
-    semaphore = asyncio.Semaphore(concurrency)
+async def fetch_url(session, url, semaphore):
     async with semaphore:
         async with session.get(url) as response:
             html = await response.text()
-            semaphore.release()
             return html, url
 
 
 async def fetch_urls(session, urls, concurrency):
+    semaphore = asyncio.Semaphore(concurrency)
     tasks = []
     for url in urls:
-        task = asyncio.ensure_future(fetch_url(session, url, concurrency))
+        task = asyncio.ensure_future(fetch_url(session, url, semaphore))
         tasks.append(task)
     result = await asyncio.gather(*tasks)
     return result
@@ -32,5 +31,7 @@ async def main(urls, concurrency):
 if __name__ == "__main__":
     with open("urls.txt", "r") as f:
         urls = f.read().strip().split(", ")
-
-    asyncio.run(main(urls, 5))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--requests", type=int, default=5, help="number of concurrent requests")
+    args = parser.parse_args()
+    asyncio.run(main(urls, args.requests))
