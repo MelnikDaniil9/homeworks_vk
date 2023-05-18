@@ -1,0 +1,14 @@
+DEBUG:LRUCache:Added key-value pair 'key3':'three, four' to cache
+INFO:LRUCache:Set key-value pair 'key3':'three, four' in cache
+DEBUG:LRUCache:Added key-value pair 'key1':'one' to cache
+INFO:LRUCache:Set key-value pair 'key1':'one' in cache
+DEBUG:LRUCache:Added key-value pair 'key2':'two' to cache
+INFO:LRUCache:Set key-value pair 'key2':'two' in cache
+DEBUG:LRUCache:Cache limit reached. Evicted key 'key1'
+DEBUG:LRUCache:Added key-value pair 'key3':'three, four' to cache
+INFO:LRUCache:Set key-value pair 'key3':'three, four' in cache
+DEBUG:LRUCache:Key '2' not found in cache
+DEBUG:LRUCache:Key '4' not found in cache
+DEBUG:LRUCache:Cache limit reached. Evicted key 'key2'
+DEBUG:LRUCache:Added key-value pair 'key4':'four' to cache
+INFO:LRUCache:Set key-value pair 'key4':'four' in cache
